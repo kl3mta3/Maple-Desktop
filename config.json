@@ -1,0 +1,11 @@
+{
+    "ai": {
+      "openai_token": "blank"
+
+    },
+  "music": {
+    "youtubeApi_token": "AIzaSyCzrpUHp7iC9jWghiMJNlIRD0cQieXdIG4"
+  }
+   
+
+  }
