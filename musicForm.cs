@@ -550,7 +550,7 @@ namespace MapleHome
                 //lbl_PlayingStatus.Text = "-Paused-";
                 SetPlayStatus("-Now Playing-");
                 MapleHome.wavePlayer.Play();
-
+                timer1.Enabled = true;
 
             }
             else if (MapleHome.music.trackPaused && MapleHome.music.userPressedStop)
