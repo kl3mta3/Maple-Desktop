@@ -45,6 +45,7 @@
             pictureBox1 = new PictureBox();
             label1 = new Label();
             rtb_MapleConsole = new RichTextBox();
+            label2 = new Label();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -54,7 +55,7 @@
             lkl_SeeApiToken.BackColor = Color.Transparent;
             lkl_SeeApiToken.Font = new Font("Segoe UI", 7F, FontStyle.Bold, GraphicsUnit.Point);
             lkl_SeeApiToken.LinkColor = Color.Black;
-            lkl_SeeApiToken.Location = new Point(192, 553);
+            lkl_SeeApiToken.Location = new Point(326, 552);
             lkl_SeeApiToken.Name = "lkl_SeeApiToken";
             lkl_SeeApiToken.Size = new Size(154, 15);
             lkl_SeeApiToken.TabIndex = 119;
@@ -68,10 +69,10 @@
             // 
             label15.AutoSize = true;
             label15.BackColor = Color.Transparent;
-            label15.Font = new Font("Segoe UI", 8F, FontStyle.Regular, GraphicsUnit.Point);
-            label15.Location = new Point(100, 602);
+            label15.Font = new Font("Segoe UI", 7F, FontStyle.Regular, GraphicsUnit.Point);
+            label15.Location = new Point(88, 553);
             label15.Name = "label15";
-            label15.Size = new Size(212, 19);
+            label15.Size = new Size(183, 15);
             label15.TabIndex = 117;
             label15.Text = "(An OpenAi Api Token is Needed)";
             // 
@@ -198,7 +199,7 @@
             label20.AutoSize = true;
             label20.BackColor = Color.Transparent;
             label20.Font = new Font("Segoe UI", 8F, FontStyle.Regular, GraphicsUnit.Point);
-            label20.Location = new Point(318, 602);
+            label20.Location = new Point(417, 602);
             label20.Name = "label20";
             label20.Size = new Size(244, 19);
             label20.TabIndex = 118;
@@ -250,6 +251,18 @@
             rtb_MapleConsole.LinkClicked += rtb_MapleConsole_LinkClicked;
             rtb_MapleConsole.TextChanged += rtb_MapleConsole_TextChanged;
             // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.BackColor = Color.Transparent;
+            label2.Font = new Font("Segoe UI", 8F, FontStyle.Regular, GraphicsUnit.Point);
+            label2.ForeColor = Color.Red;
+            label2.Location = new Point(111, 602);
+            label2.Name = "label2";
+            label2.Size = new Size(289, 19);
+            label2.TabIndex = 124;
+            label2.Text = "Client Restart Needed after adding a new key!";
+            // 
             // AiForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -257,6 +270,7 @@
             BackgroundImage = Properties.Resources.Artboard_1_1075;
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(697, 641);
+            Controls.Add(label2);
             Controls.Add(rtb_MapleConsole);
             Controls.Add(label1);
             Controls.Add(lkl_SeeApiToken);
@@ -275,6 +289,7 @@
             Controls.Add(pictureBox1);
             DoubleBuffered = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MinimizeBox = false;
             Name = "AiForm";
             Text = "Maple Chat";
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
@@ -300,5 +315,6 @@
         private PictureBox pictureBox1;
         private Label label1;
         private RichTextBox rtb_MapleConsole;
+        private Label label2;
     }
 }

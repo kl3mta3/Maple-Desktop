@@ -197,6 +197,7 @@ namespace MapleHome
             Controls.Add(pictureBox2);
             DoubleBuffered = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
             Name = "Form1";
             Text = "Maple Desktop";
             FormClosing += Form1_FormClosing;

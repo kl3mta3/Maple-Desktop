@@ -9,6 +9,7 @@
     <ApplicationIcon>MaplebotIcon.ico</ApplicationIcon>
     <UseWPF>True</UseWPF>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AssemblyName>MapleDesktop</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

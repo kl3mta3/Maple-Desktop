@@ -366,7 +366,7 @@ namespace MapleHome
 
 
 
-            if (MapleHome.music.playlistCount > 1 && !MapleHome.music.userPressedStop && !MapleHome.music.userPressedLast )
+            if (MapleHome.music.playlistCount > 1 && !MapleHome.music.userPressedStop && !MapleHome.music.userPressedLast)
             {
                 MapleHome.debugConsole.WriteToDebugConsole($"Next Track Triggered After Stop");
                 MapleHome.music.PlayNextTrack(sender, e);
@@ -701,7 +701,7 @@ namespace MapleHome
             {
                 MapleHome.playlistConsole.Show();
                 MapleHome.playlistConsole.ClearPlaylistConsole();
-               MapleHome.music.DisplayAudioPlaylist();
+                MapleHome.music.DisplayAudioPlaylist();
             }
             else
             {
