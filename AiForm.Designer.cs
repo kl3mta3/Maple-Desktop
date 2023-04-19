@@ -40,10 +40,11 @@
             label18 = new Label();
             txb_OpenAiApiKey = new TextBox();
             btn_InputEnter = new Button();
-            rtb_MapleConsole = new RichTextBox();
             label20 = new Label();
             rbn_ApiSaved1 = new CheckBox();
             pictureBox1 = new PictureBox();
+            label1 = new Label();
+            rtb_MapleConsole = new RichTextBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
@@ -53,7 +54,7 @@
             lkl_SeeApiToken.BackColor = Color.Transparent;
             lkl_SeeApiToken.Font = new Font("Segoe UI", 7F, FontStyle.Bold, GraphicsUnit.Point);
             lkl_SeeApiToken.LinkColor = Color.Black;
-            lkl_SeeApiToken.Location = new Point(248, 552);
+            lkl_SeeApiToken.Location = new Point(192, 553);
             lkl_SeeApiToken.Name = "lkl_SeeApiToken";
             lkl_SeeApiToken.Size = new Size(154, 15);
             lkl_SeeApiToken.TabIndex = 119;
@@ -192,21 +193,6 @@
             btn_InputEnter.UseVisualStyleBackColor = false;
             btn_InputEnter.Click += btn_InputEnter_Click;
             // 
-            // rtb_MapleConsole
-            // 
-            rtb_MapleConsole.BackColor = Color.Gray;
-            rtb_MapleConsole.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point);
-            rtb_MapleConsole.ForeColor = Color.Black;
-            rtb_MapleConsole.Location = new Point(26, 48);
-            rtb_MapleConsole.Name = "rtb_MapleConsole";
-            rtb_MapleConsole.ReadOnly = true;
-            rtb_MapleConsole.ScrollBars = RichTextBoxScrollBars.Vertical;
-            rtb_MapleConsole.Size = new Size(635, 358);
-            rtb_MapleConsole.TabIndex = 106;
-            rtb_MapleConsole.Text = "";
-            rtb_MapleConsole.LinkClicked += rtb_MapleConsole_LinkClicked;
-            rtb_MapleConsole.TextChanged += rtb_MapleConsole_TextChanged;
-            // 
             // label20
             // 
             label20.AutoSize = true;
@@ -239,6 +225,31 @@
             pictureBox1.TabIndex = 121;
             pictureBox1.TabStop = false;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.BackColor = Color.Transparent;
+            label1.Font = new Font("Segoe UI", 8F, FontStyle.Bold, GraphicsUnit.Point);
+            label1.Location = new Point(172, 427);
+            label1.Name = "label1";
+            label1.Size = new Size(298, 19);
+            label1.TabIndex = 122;
+            label1.Text = "Note: Long Answers might take a moment. ";
+            // 
+            // rtb_MapleConsole
+            // 
+            rtb_MapleConsole.BackColor = SystemColors.InactiveCaptionText;
+            rtb_MapleConsole.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point);
+            rtb_MapleConsole.ForeColor = Color.WhiteSmoke;
+            rtb_MapleConsole.Location = new Point(24, 48);
+            rtb_MapleConsole.Name = "rtb_MapleConsole";
+            rtb_MapleConsole.ReadOnly = true;
+            rtb_MapleConsole.Size = new Size(637, 360);
+            rtb_MapleConsole.TabIndex = 123;
+            rtb_MapleConsole.Text = "";
+            rtb_MapleConsole.LinkClicked += rtb_MapleConsole_LinkClicked;
+            rtb_MapleConsole.TextChanged += rtb_MapleConsole_TextChanged;
+            // 
             // AiForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -246,6 +257,8 @@
             BackgroundImage = Properties.Resources.Artboard_1_1075;
             BackgroundImageLayout = ImageLayout.Stretch;
             ClientSize = new Size(697, 641);
+            Controls.Add(rtb_MapleConsole);
+            Controls.Add(label1);
             Controls.Add(lkl_SeeApiToken);
             Controls.Add(label15);
             Controls.Add(label7);
@@ -257,7 +270,6 @@
             Controls.Add(label18);
             Controls.Add(txb_OpenAiApiKey);
             Controls.Add(btn_InputEnter);
-            Controls.Add(rtb_MapleConsole);
             Controls.Add(label20);
             Controls.Add(rbn_ApiSaved1);
             Controls.Add(pictureBox1);
@@ -283,9 +295,10 @@
         private Label label18;
         internal TextBox txb_OpenAiApiKey;
         internal Button btn_InputEnter;
-        internal RichTextBox rtb_MapleConsole;
         private Label label20;
         private CheckBox rbn_ApiSaved1;
         private PictureBox pictureBox1;
+        private Label label1;
+        private RichTextBox rtb_MapleConsole;
     }
 }

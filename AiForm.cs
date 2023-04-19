@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,13 +8,17 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Forms;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace MapleHome
 {
     public partial class AiForm : Form
     {
         internal bool systemConfigRan = false;
+        internal string question = "";
         public AiForm()
         {
             InitializeComponent();
@@ -39,36 +44,107 @@ namespace MapleHome
 
         private void rtb_MapleConsole_TextChanged(object sender, EventArgs e)
         {
-            rtb_MapleConsole.SelectionStart = rtb_MapleConsole.Text.Length;
+            rtb_MapleConsole.Select(rtb_MapleConsole.Text.Length, 0);
             rtb_MapleConsole.ScrollToCaret();
+
+
         }
-        internal void WriteToMapleConsole(string message)
+
+        internal void PostQuestionToConsole(string message, Color? c = null)
         {
-            rtb_MapleConsole.Text = message + Environment.NewLine + rtb_MapleConsole.Text;
+
+            System.Windows.Forms.RichTextBox t = rtb_MapleConsole;
+            rtb_MapleConsole.Select(rtb_MapleConsole.Text.Length, 0);
+            t.AppendText((t.Lines.Count() == 0 ? "" : Environment.NewLine + message));
+            t.SelectionColor = c ?? Color.SlateBlue;
+            MapleHome.debugConsole.WriteToDebugConsole($"Ai System Question sent to Console: {message}.");
+            // rtb_MapleConsole.ScrollToCaret();
+        }
+        internal void WriteToMapleConsole(string message, Color? c = null)
+        {
+
+            if (rtb_MapleConsole.Text.Length >= 1)
+            {
+                rtb_MapleConsole.Text = rtb_MapleConsole.Text + Environment.NewLine;
+            }
+            rtb_MapleConsole.AppendText(message);
+
+            MapleHome.debugConsole.WriteToDebugConsole($"Ai System Wrote Message to Console: {message}.");
+
         }
         internal void AnswerToMapleConsole(string value, Color? c = null)
         {
-            RichTextBox t = rtb_MapleConsole;
+            System.Windows.Forms.RichTextBox t = rtb_MapleConsole;
             t.SelectionStart = t.TextLength;
             t.SelectionLength = 0;
             t.SelectionColor = c ?? Color.DarkSlateGray;
             t.AppendText((t.Lines.Count() == 0 ? "" : Environment.NewLine + value));
             t.SelectionColor = Color.SlateBlue;
+            MapleHome.debugConsole.WriteToDebugConsole($"Ai System Answer sent to Console: {value}.");
+            // ScrollTOBottomOfBoX();
         }
+
+
+        internal void ScrollTOBottomOfBoX()
+        {
+
+            rtb_MapleConsole.SelectionStart = rtb_MapleConsole.Text.Length;
+            rtb_MapleConsole.ScrollToCaret();
+
+
+        }
+
+
+
+
+        internal void InsertMapleTag()
+        {
+
+
+            rtb_MapleConsole.Text = rtb_MapleConsole.Text + Environment.NewLine + "Maple:";
+
+
+
+        }
+
+
+        internal void AnswerToMapleConsoleStream(string value, Color? c = null)
+        {
+
+
+
+
+            rtb_MapleConsole.AppendText(value);
+            //rtb_MapleConsole.Focus();
+            // rtb_MapleConsole.ScrollToCaret();
+            rtb_MapleConsole.Select(rtb_MapleConsole.Text.Length, 0);
+            rtb_MapleConsole.ScrollToCaret();
+
+
+        }
+
+
+
+
+
         internal void btn_InputEnter_Click(object sender, EventArgs e)
         {
 
 
-            string question = rtb_MapleInput.Text;
+            question = rtb_MapleInput.Text;
+            rtb_MapleInput.Text = "";
 
 
-            // Helpers helper = new Helpers();
-            // helper.SendQuestion(question);
-            WriteToMapleConsole(Environment.NewLine);
-            AnswerToMapleConsole($"Me: {question}", Color.PaleTurquoise);
+
+
+            WriteToMapleConsole(" ");
+
+            // WriteToMapleConsole($"Me: {question}");
+
 
             MapleHome.ai.AskQuestion(question);
-            ClearMapleInput();
+            // MapleHome.ai.AskGptStream();
+            rtb_MapleConsole.Focus();
         }
 
         internal void ClearMapleInput()
@@ -221,16 +297,15 @@ namespace MapleHome
 
             if (e.KeyChar == 13)
             {
-                if (rtb_MapleInput.Text != null)
-                {
-                    string searchrequest = rtb_MapleInput.Text;
+                string question = rtb_MapleInput.Text;
 
+                WriteToMapleConsole("");
 
+                //WriteToMapleConsole($"Me: {question}");
+                rtb_MapleInput.Text = "";
 
-                    btn_InputEnter_Click(sender, e);
-
-
-                }
+                MapleHome.ai.AskQuestion(question);
+                // rtb_MapleConsole.Focus();
 
             }
 

@@ -24,13 +24,13 @@ namespace MapleHome
         internal static AiSystem ai = new AiSystem();
         internal static string musicSavePath = Path.Combine(systemPath, @"Maple\Saved Music");
         internal static string videoSavePath = Path.Combine(systemPath, @"Maple\Saved Videos");
-        internal static Form1 form = new Form1();
         internal static IWavePlayer wavePlayer;
         internal static WaveOutEvent outputDevice;
         internal static AudioFileReader audioFile;
         internal static VideoPlayer videoPlayer = new VideoPlayer();
         internal static YoutubeClient youtube = new YoutubeClient();
 
+        internal static Form1 form = new Form1();
         internal static AiForm aiForm = new AiForm();
         internal static musicForm musicForm = new musicForm();
         internal static LinksForm linksForm = new LinksForm();
