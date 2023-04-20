@@ -662,6 +662,7 @@
             Controls.Add(pictureBox4);
             DoubleBuffered = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
+            MaximizeBox = false;
             Name = "LinksForm";
             Text = "Links";
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();

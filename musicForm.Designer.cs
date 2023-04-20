@@ -580,7 +580,7 @@
             Controls.Add(MusicBgPanel);
             DoubleBuffered = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
-            MinimizeBox = false;
+            MaximizeBox = false;
             Name = "musicForm";
             Text = "Maple Music";
             Load += musicForm_Load;

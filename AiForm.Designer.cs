@@ -289,7 +289,7 @@
             Controls.Add(pictureBox1);
             DoubleBuffered = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
-            MinimizeBox = false;
+            MaximizeBox = false;
             Name = "AiForm";
             Text = "Maple Chat";
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
