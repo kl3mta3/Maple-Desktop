@@ -42,18 +42,18 @@ namespace MapleHome
         {
 
             ApplicationConfiguration.Initialize();
-            //if (!Directory.Exists(musicSavePath))
-            //{
-            //    Directory.CreateDirectory(musicSavePath);
+            if (!Directory.Exists(musicSavePath))
+            {
+                Directory.CreateDirectory(musicSavePath);
 
-            //}
-            //if (!Directory.Exists(videoSavePath))
-            //{
-            //    Directory.CreateDirectory(videoSavePath);
+            }
+            if (!Directory.Exists(videoSavePath))
+            {
+                Directory.CreateDirectory(videoSavePath);
 
-            //}
- 
-           
+            }
+
+
             System.Windows.Forms.Application.Run(new Form1());
         }
 

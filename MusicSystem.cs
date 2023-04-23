@@ -3,12 +3,18 @@ using Google.Apis.YouTube.v3;
 using System.Net;
 using YoutubeExplode.Videos.Streams;
 using System.IO;
+using VideoLibrary;
+using YoutubeExplode.Search;
+using System.Windows;
+using YoutubeExplode.Common;
+using YoutubeExplode.Videos;
 
 namespace MapleHome
 {
     public class MusicSystem
     {
         private List<string> searchResults = new List<string>();
+        private List <VideoSearchResult> searchResults1 = new List<VideoSearchResult>();
         //internal Dictionary<int, Song> playlist = new Dictionary<int, Song>();
         internal static List<Song> playlist = new List<Song>();
         internal List<Video> videoPlaylist = new List<Video>();
@@ -358,8 +364,8 @@ namespace MapleHome
             //Helpers helper = new Helpers();
             //searchResults.Clear();
             await SearchForVideo(request);
-            string result = searchResults[0];
-            MapleHome.debugConsole.WriteToDebugConsole($"Search Results= {result}");
+            string result = searchResults1[0].Url;
+            MapleHome.debugConsole.WriteToDebugConsole($"Search Results= {searchResults1[0]}");
             if (result == null)
             {
 
@@ -372,8 +378,9 @@ namespace MapleHome
             var videoAuthor = "";
             var videoDuration = "";
             var videoDataUrl = "";
-            var videoUrl = result;
-            var videoData = await youtube.Videos.GetAsync(videoUrl);
+            var videoUrl = searchResults1[0].Url;
+            MapleHome.debugConsole.WriteToDebugConsole($"videoUrl {videoUrl}");
+            var videoData = searchResults1[0];
             string fileName = "";
             string musicFolder = "";
             string allegedPath = "";
@@ -398,10 +405,12 @@ namespace MapleHome
                 MapleHome.debugConsole.WriteToDebugConsole($"getting AudioStream");
                 var streamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
                 MapleHome.debugConsole.WriteToDebugConsole($"Creating Audio Path");
+
+
                 fileName = $"{videoData.Title} by {videoData.Author.ChannelTitle} ";
                 musicFolder = MapleHome.musicSavePath;
-                allegedPath = System.IO.Path.Combine(musicFolder, $"{fileName}.{streamInfo.Container}");
-
+                allegedPath = Path.Combine(musicFolder, $"{fileName}.{streamInfo.Container}");
+                MapleHome.debugConsole.WriteToDebugConsole($"Created Path  {allegedPath}");
                 //filepath = NextAvailableFilename(allegedPath);
 
                 if (!File.Exists(allegedPath))
@@ -473,7 +482,7 @@ namespace MapleHome
 
                 MapleHome.debugConsole.WriteToDebugConsole($"Video Save triggered");
                 //youtube = new YoutubeClient();
-                videoData = await youtube.Videos.GetAsync(videoUrl);
+                videoData = searchResults1[0];
                 videoTitle = videoData.Title;
                 videoAuthor = videoData.Author.ChannelTitle;
                 videoDuration = videoData.Duration.ToString();
@@ -755,418 +764,473 @@ namespace MapleHome
 
             MapleHome.debugConsole.WriteToDebugConsole($"Searching for '{request}'");
             //MapleHome.debugConsole.WriteToDebugConsole($"With API Key '{MapleHome.youtubeApiKey}'");
-          
-            try
+
+            if (searchResults1.Count > 0)
             {
-                var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+                searchResults1.Clear();
+            }
+           // var videos = await MapleHome.youtube.Search.GetVideosAsync("blender tutorials");
+
+            await foreach (var video in MapleHome.youtube.Search.GetVideosAsync(request))
+            {
+
+                if (searchResults1.Count < 1)
                 {
-                    ApiKey = MapleHome.youtubeApiKey,
-                    ApplicationName = "Maple"
-                });
-               // helper.WriteToMapleConsole($"Youtube services created.");
-                //var searchListRequest = youtubeService.Search.List("snippet");
 
-                var searchListRequest = youtubeService.Search.List("snippet");
-                searchListRequest.Q = request;
-                searchListRequest.Type = "video";
-                searchListRequest.MaxResults = 1;
+                    searchResults1.Add(video);
+                 MapleHome.debugConsole.WriteToDebugConsole($"{video.Title} added to searchresults");
+                    break;
 
-
-                var searchListResponse = await searchListRequest.ExecuteAsync();
-
-                var videoId = searchListResponse.Items[0].Id.VideoId;
-
-               // helper.WriteToMapleConsole($"{videoId} Video Id.");
-                if(searchResults.Count>0)
-                {
-                searchResults.Clear();
                 }
-                searchResults.Add(videoId);
+
+
+                //if (searchResults1.Count < 1)
+                //{
+
+                //    switch (video)
+                //    {
+                //        case VideoSearchResult video:
+                //            {
+
+
+                //                //var id = video.Id;
+                //                //var title = video.Title;
+                //                //var duration = video.Duration;
+
+                //                break;
+
+
+
+                //            }
+                //    }
+
+                //}
+
+
+
 
             }
-            catch
-            {
-                try
-                {
-
-                    MapleHome.debugConsole.WriteToDebugConsole($"Main Api key failed using 2nd.");
-                    var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-                    {
-                        ApiKey = Properties.Settings.Default.YoutubeApiKey2,
-                        ApplicationName = "Maple"
-                    });
-                    MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
-                    //var searchListRequest = youtubeService.Search.List("snippet");
-
-                    var searchListRequest = youtubeService.Search.List("snippet");
-                    searchListRequest.Q = request;
-                    searchListRequest.Type = "video";
-                    searchListRequest.MaxResults = 1;
-
-
-                    var searchListResponse = await searchListRequest.ExecuteAsync();
-
-                    var videoId = searchListResponse.Items[0].Id.VideoId;
-
-                    MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
-                    if (searchResults.Count > 0)
-                    {
-                        searchResults.Clear();
-                    }
-                    searchResults.Add(videoId);
-                }
-                catch
-                {
-
-                    try
-                    {
-
-                        MapleHome.debugConsole.WriteToDebugConsole($"2nd Api key failed using 3rd.");
-                        var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-                        {
-                            ApiKey = Properties.Settings.Default.YoutubeApiKey3,
-                            ApplicationName = "Maple"
-                        });
-                        MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
-                        //var searchListRequest = youtubeService.Search.List("snippet");
-
-                        var searchListRequest = youtubeService.Search.List("snippet");
-                        searchListRequest.Q = request;
-                        searchListRequest.Type = "video";
-                        searchListRequest.MaxResults = 1;
-
-
-                        var searchListResponse = await searchListRequest.ExecuteAsync();
-
-                        var videoId = searchListResponse.Items[0].Id.VideoId;
-
-                        MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
-                        if (searchResults.Count > 0)
-                        {
-                            searchResults.Clear();
-                        }
-                        searchResults.Add(videoId);
-                    }
-                    catch
-                    {
-                        try
-                        {
-
-                            MapleHome.debugConsole.WriteToDebugConsole($"3rd Api key failed using 4th.");
-                            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-                            {
-                                ApiKey = Properties.Settings.Default.YoutubeApiKey4,
-                                ApplicationName = "Maple"
-                            });
-                            MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
-                            //var searchListRequest = youtubeService.Search.List("snippet");
-
-                            var searchListRequest = youtubeService.Search.List("snippet");
-                            searchListRequest.Q = request;
-                            searchListRequest.Type = "video";
-                            searchListRequest.MaxResults = 1;
-
-
-                            var searchListResponse = await searchListRequest.ExecuteAsync();
-
-                            var videoId = searchListResponse.Items[0].Id.VideoId;
-
-                            MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
-                            if (searchResults.Count > 0)
-                            {
-                                searchResults.Clear();
-                            }
-                            searchResults.Add(videoId);
-                        }
-                        catch
-                        {
-
-                            try
-                            {
-
-                                MapleHome.debugConsole.WriteToDebugConsole($"4th Api key failed using 5th.");
-                                var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-                                {
-                                    ApiKey = Properties.Settings.Default.YoutubeApiKey5,
-                                    ApplicationName = "Maple"
-                                });
-                                MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
-                                //var searchListRequest = youtubeService.Search.List("snippet");
-
-                                var searchListRequest = youtubeService.Search.List("snippet");
-                                searchListRequest.Q = request;
-                                searchListRequest.Type = "video";
-                                searchListRequest.MaxResults = 1;
-
-
-                                var searchListResponse = await searchListRequest.ExecuteAsync();
-
-                                var videoId = searchListResponse.Items[0].Id.VideoId;
-
-                                MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
-                                if (searchResults.Count > 0)
-                                {
-                                    searchResults.Clear();
-                                }
-                                searchResults.Add(videoId);
-                            }
-                            catch
-                            {
-                                try
-                                {
-
-                                    MapleHome.debugConsole.WriteToDebugConsole($"5th Api key failed using6th.");
-                                    var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-                                    {
-                                        ApiKey = Properties.Settings.Default.YoutubeApiKey6,
-                                        ApplicationName = "Maple"
-                                    });
-                                    MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
-                                    //var searchListRequest = youtubeService.Search.List("snippet");
-
-                                    var searchListRequest = youtubeService.Search.List("snippet");
-                                    searchListRequest.Q = request;
-                                    searchListRequest.Type = "video";
-                                    searchListRequest.MaxResults = 1;
-
-
-                                    var searchListResponse = await searchListRequest.ExecuteAsync();
-
-                                    var videoId = searchListResponse.Items[0].Id.VideoId;
-
-                                    MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
-                                    if (searchResults.Count > 0)
-                                    {
-                                        searchResults.Clear();
-                                    }
-                                    searchResults.Add(videoId);
-                                }
-                                catch
-                                {
-                                    try
-                                    {
-
-                                        MapleHome.debugConsole.WriteToDebugConsole($"6th Api key failed using7th.");
-                                        var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-                                        {
-                                            ApiKey = Properties.Settings.Default.YoutubeApiKey7,
-                                            ApplicationName = "Maple"
-                                        });
-                                        MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
-                                        //var searchListRequest = youtubeService.Search.List("snippet");
-
-                                        var searchListRequest = youtubeService.Search.List("snippet");
-                                        searchListRequest.Q = request;
-                                        searchListRequest.Type = "video";
-                                        searchListRequest.MaxResults = 1;
-
-
-                                        var searchListResponse = await searchListRequest.ExecuteAsync();
-
-                                        var videoId = searchListResponse.Items[0].Id.VideoId;
-
-                                        MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
-                                        if (searchResults.Count > 0)
-                                        {
-                                            searchResults.Clear();
-                                        }
-                                        searchResults.Add(videoId);
-                                    }
-                                    catch
-                                    {
-
-                                        try
-                                        {
-
-                                            MapleHome.debugConsole.WriteToDebugConsole($"7th Api key failed using 9th.");
-                                            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-                                            {
-                                                ApiKey = Properties.Settings.Default.YoutubeApiKey8,
-                                                ApplicationName = "Maple"
-                                            });
-                                            MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
-                                            //var searchListRequest = youtubeService.Search.List("snippet");
-
-                                            var searchListRequest = youtubeService.Search.List("snippet");
-                                            searchListRequest.Q = request;
-                                            searchListRequest.Type = "video";
-                                            searchListRequest.MaxResults = 1;
-
-
-                                            var searchListResponse = await searchListRequest.ExecuteAsync();
-
-                                            var videoId = searchListResponse.Items[0].Id.VideoId;
-
-                                            MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
-                                            if (searchResults.Count > 0)
-                                            {
-                                                searchResults.Clear();
-                                            }
-                                            searchResults.Add(videoId);
-                                        }
-                                        catch
-                                        {
-
-                                            try
-                                            {
-
-                                                MapleHome.debugConsole.WriteToDebugConsole($"8th Api key failed using 9th.");
-                                                var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-                                                {
-                                                    ApiKey = Properties.Settings.Default.YoutubeApiKey9,
-                                                    ApplicationName = "Maple"
-                                                });
-                                                MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
-                                                //var searchListRequest = youtubeService.Search.List("snippet");
-
-                                                var searchListRequest = youtubeService.Search.List("snippet");
-                                                searchListRequest.Q = request;
-                                                searchListRequest.Type = "video";
-                                                searchListRequest.MaxResults = 1;
-
-
-                                                var searchListResponse = await searchListRequest.ExecuteAsync();
-
-                                                var videoId = searchListResponse.Items[0].Id.VideoId;
-
-                                                MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
-                                                if (searchResults.Count > 0)
-                                                {
-                                                    searchResults.Clear();
-                                                }
-                                                searchResults.Add(videoId);
-                                            }
-                                            catch
-                                            {
-
-                                                try
-                                                {
-
-                                                    MapleHome.debugConsole.WriteToDebugConsole($"9th Api key failed using 10th.");
-                                                    var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-                                                    {
-                                                        ApiKey = Properties.Settings.Default.YoutubeApiKey10,
-                                                        ApplicationName = "Maple"
-                                                    });
-                                                    MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
-                                                    //var searchListRequest = youtubeService.Search.List("snippet");
-
-                                                    var searchListRequest = youtubeService.Search.List("snippet");
-                                                    searchListRequest.Q = request;
-                                                    searchListRequest.Type = "video";
-                                                    searchListRequest.MaxResults = 1;
-
-
-                                                    var searchListResponse = await searchListRequest.ExecuteAsync();
-
-                                                    var videoId = searchListResponse.Items[0].Id.VideoId;
-
-                                                    MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
-                                                    if (searchResults.Count > 0)
-                                                    {
-                                                        searchResults.Clear();
-                                                    }
-                                                    searchResults.Add(videoId);
-                                                }
-                                                catch
-                                                {
-
-                                                    try
-                                                    {
-
-                                                        MapleHome.debugConsole.WriteToDebugConsole($"10th Api key failed using Last.");
-                                                        var youtubeService = new YouTubeService(new BaseClientService.Initializer()
-                                                        {
-                                                            ApiKey = Properties.Settings.Default.YoutubeApiKey11,
-                                                            ApplicationName = "Maple"
-                                                        });
-                                                        MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
-                                                        //var searchListRequest = youtubeService.Search.List("snippet");
-
-                                                        var searchListRequest = youtubeService.Search.List("snippet");
-                                                        searchListRequest.Q = request;
-                                                        searchListRequest.Type = "video";
-                                                        searchListRequest.MaxResults = 1;
-
-
-                                                        var searchListResponse = await searchListRequest.ExecuteAsync();
-
-                                                        var videoId = searchListResponse.Items[0].Id.VideoId;
-
-                                                        MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
-                                                        if (searchResults.Count > 0)
-                                                        {
-                                                            searchResults.Clear();
-                                                        }
-                                                        searchResults.Add(videoId);
-                                                    }
-                                                    catch (Exception ex)
-                                                    {
-
-
-                                                        MapleHome.debugConsole.WriteToDebugConsole($"All API failed. reason:  {ex.Message}");
-
-                                                    }
-
-
-
-
-                                                }
-
-
-
-
-
-                                            }
-
-
-
-
-
-                                        }
-
-
-
-
-
-                                    }
-
-
-
-
-
-                                }
-
-
-
-
-                            }
-
-
-
-
-
-
-
-
-
-                        }
-
-
-                    }
-
-
-
-
-
-
-                }
-            }
-
-           // helper.WriteToMapleConsole($"{searchResults[0]} Results Id.");
-           // helper.WriteToMapleConsole($"{searchResults.Count} Total Results Found.");
-
         }
+
+
+
+
+
+
+
+
+
+            //try
+            //{
+            //    var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            //    {
+            //        ApiKey = MapleHome.youtubeApiKey,
+            //        ApplicationName = "Maple"
+            //    });
+            //   // helper.WriteToMapleConsole($"Youtube services created.");
+            //    //var searchListRequest = youtubeService.Search.List("snippet");
+
+            //    var searchListRequest = youtubeService.Search.List("snippet");
+            //    searchListRequest.Q = request;
+            //    searchListRequest.Type = "video";
+            //    searchListRequest.MaxResults = 1;
+
+
+            //    var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            //    var videoId = searchListResponse.Items[0].Id.VideoId;
+
+            //   // helper.WriteToMapleConsole($"{videoId} Video Id.");
+            //    if(searchResults.Count>0)
+            //    {
+            //    searchResults.Clear();
+            //    }
+            //    searchResults.Add(videoId);
+
+            //}
+            //catch
+            //{
+            //    try
+            //    {
+
+            //        MapleHome.debugConsole.WriteToDebugConsole($"Main Api key failed using 2nd.");
+            //        var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            //        {
+            //            ApiKey = Properties.Settings.Default.YoutubeApiKey2,
+            //            ApplicationName = "Maple"
+            //        });
+            //        MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
+            //        //var searchListRequest = youtubeService.Search.List("snippet");
+
+            //        var searchListRequest = youtubeService.Search.List("snippet");
+            //        searchListRequest.Q = request;
+            //        searchListRequest.Type = "video";
+            //        searchListRequest.MaxResults = 1;
+
+
+            //        var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            //        var videoId = searchListResponse.Items[0].Id.VideoId;
+
+            //        MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
+            //        if (searchResults.Count > 0)
+            //        {
+            //            searchResults.Clear();
+            //        }
+            //        searchResults.Add(videoId);
+            //    }
+            //    catch
+            //    {
+
+            //        try
+            //        {
+
+            //            MapleHome.debugConsole.WriteToDebugConsole($"2nd Api key failed using 3rd.");
+            //            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            //            {
+            //                ApiKey = Properties.Settings.Default.YoutubeApiKey3,
+            //                ApplicationName = "Maple"
+            //            });
+            //            MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
+            //            //var searchListRequest = youtubeService.Search.List("snippet");
+
+            //            var searchListRequest = youtubeService.Search.List("snippet");
+            //            searchListRequest.Q = request;
+            //            searchListRequest.Type = "video";
+            //            searchListRequest.MaxResults = 1;
+
+
+            //            var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            //            var videoId = searchListResponse.Items[0].Id.VideoId;
+
+            //            MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
+            //            if (searchResults.Count > 0)
+            //            {
+            //                searchResults.Clear();
+            //            }
+            //            searchResults.Add(videoId);
+            //        }
+            //        catch
+            //        {
+            //            try
+            //            {
+
+            //                MapleHome.debugConsole.WriteToDebugConsole($"3rd Api key failed using 4th.");
+            //                var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            //                {
+            //                    ApiKey = Properties.Settings.Default.YoutubeApiKey4,
+            //                    ApplicationName = "Maple"
+            //                });
+            //                MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
+            //                //var searchListRequest = youtubeService.Search.List("snippet");
+
+            //                var searchListRequest = youtubeService.Search.List("snippet");
+            //                searchListRequest.Q = request;
+            //                searchListRequest.Type = "video";
+            //                searchListRequest.MaxResults = 1;
+
+
+            //                var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            //                var videoId = searchListResponse.Items[0].Id.VideoId;
+
+            //                MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
+            //                if (searchResults.Count > 0)
+            //                {
+            //                    searchResults.Clear();
+            //                }
+            //                searchResults.Add(videoId);
+            //            }
+            //            catch
+            //            {
+
+            //                try
+            //                {
+
+            //                    MapleHome.debugConsole.WriteToDebugConsole($"4th Api key failed using 5th.");
+            //                    var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            //                    {
+            //                        ApiKey = Properties.Settings.Default.YoutubeApiKey5,
+            //                        ApplicationName = "Maple"
+            //                    });
+            //                    MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
+            //                    //var searchListRequest = youtubeService.Search.List("snippet");
+
+            //                    var searchListRequest = youtubeService.Search.List("snippet");
+            //                    searchListRequest.Q = request;
+            //                    searchListRequest.Type = "video";
+            //                    searchListRequest.MaxResults = 1;
+
+
+            //                    var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            //                    var videoId = searchListResponse.Items[0].Id.VideoId;
+
+            //                    MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
+            //                    if (searchResults.Count > 0)
+            //                    {
+            //                        searchResults.Clear();
+            //                    }
+            //                    searchResults.Add(videoId);
+            //                }
+            //                catch
+            //                {
+            //                    try
+            //                    {
+
+            //                        MapleHome.debugConsole.WriteToDebugConsole($"5th Api key failed using6th.");
+            //                        var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            //                        {
+            //                            ApiKey = Properties.Settings.Default.YoutubeApiKey6,
+            //                            ApplicationName = "Maple"
+            //                        });
+            //                        MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
+            //                        //var searchListRequest = youtubeService.Search.List("snippet");
+
+            //                        var searchListRequest = youtubeService.Search.List("snippet");
+            //                        searchListRequest.Q = request;
+            //                        searchListRequest.Type = "video";
+            //                        searchListRequest.MaxResults = 1;
+
+
+            //                        var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            //                        var videoId = searchListResponse.Items[0].Id.VideoId;
+
+            //                        MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
+            //                        if (searchResults.Count > 0)
+            //                        {
+            //                            searchResults.Clear();
+            //                        }
+            //                        searchResults.Add(videoId);
+            //                    }
+            //                    catch
+            //                    {
+            //                        try
+            //                        {
+
+            //                            MapleHome.debugConsole.WriteToDebugConsole($"6th Api key failed using7th.");
+            //                            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            //                            {
+            //                                ApiKey = Properties.Settings.Default.YoutubeApiKey7,
+            //                                ApplicationName = "Maple"
+            //                            });
+            //                            MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
+            //                            //var searchListRequest = youtubeService.Search.List("snippet");
+
+            //                            var searchListRequest = youtubeService.Search.List("snippet");
+            //                            searchListRequest.Q = request;
+            //                            searchListRequest.Type = "video";
+            //                            searchListRequest.MaxResults = 1;
+
+
+            //                            var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            //                            var videoId = searchListResponse.Items[0].Id.VideoId;
+
+            //                            MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
+            //                            if (searchResults.Count > 0)
+            //                            {
+            //                                searchResults.Clear();
+            //                            }
+            //                            searchResults.Add(videoId);
+            //                        }
+            //                        catch
+            //                        {
+
+            //                            try
+            //                            {
+
+            //                                MapleHome.debugConsole.WriteToDebugConsole($"7th Api key failed using 9th.");
+            //                                var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            //                                {
+            //                                    ApiKey = Properties.Settings.Default.YoutubeApiKey8,
+            //                                    ApplicationName = "Maple"
+            //                                });
+            //                                MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
+            //                                //var searchListRequest = youtubeService.Search.List("snippet");
+
+            //                                var searchListRequest = youtubeService.Search.List("snippet");
+            //                                searchListRequest.Q = request;
+            //                                searchListRequest.Type = "video";
+            //                                searchListRequest.MaxResults = 1;
+
+
+            //                                var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            //                                var videoId = searchListResponse.Items[0].Id.VideoId;
+
+            //                                MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
+            //                                if (searchResults.Count > 0)
+            //                                {
+            //                                    searchResults.Clear();
+            //                                }
+            //                                searchResults.Add(videoId);
+            //                            }
+            //                            catch
+            //                            {
+
+            //                                try
+            //                                {
+
+            //                                    MapleHome.debugConsole.WriteToDebugConsole($"8th Api key failed using 9th.");
+            //                                    var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            //                                    {
+            //                                        ApiKey = Properties.Settings.Default.YoutubeApiKey9,
+            //                                        ApplicationName = "Maple"
+            //                                    });
+            //                                    MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
+            //                                    //var searchListRequest = youtubeService.Search.List("snippet");
+
+            //                                    var searchListRequest = youtubeService.Search.List("snippet");
+            //                                    searchListRequest.Q = request;
+            //                                    searchListRequest.Type = "video";
+            //                                    searchListRequest.MaxResults = 1;
+
+
+            //                                    var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            //                                    var videoId = searchListResponse.Items[0].Id.VideoId;
+
+            //                                    MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
+            //                                    if (searchResults.Count > 0)
+            //                                    {
+            //                                        searchResults.Clear();
+            //                                    }
+            //                                    searchResults.Add(videoId);
+            //                                }
+            //                                catch
+            //                                {
+
+            //                                    try
+            //                                    {
+
+            //                                        MapleHome.debugConsole.WriteToDebugConsole($"9th Api key failed using 10th.");
+            //                                        var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            //                                        {
+            //                                            ApiKey = Properties.Settings.Default.YoutubeApiKey10,
+            //                                            ApplicationName = "Maple"
+            //                                        });
+            //                                        MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
+            //                                        //var searchListRequest = youtubeService.Search.List("snippet");
+
+            //                                        var searchListRequest = youtubeService.Search.List("snippet");
+            //                                        searchListRequest.Q = request;
+            //                                        searchListRequest.Type = "video";
+            //                                        searchListRequest.MaxResults = 1;
+
+
+            //                                        var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            //                                        var videoId = searchListResponse.Items[0].Id.VideoId;
+
+            //                                        MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
+            //                                        if (searchResults.Count > 0)
+            //                                        {
+            //                                            searchResults.Clear();
+            //                                        }
+            //                                        searchResults.Add(videoId);
+            //                                    }
+            //                                    catch
+            //                                    {
+
+            //                                        try
+            //                                        {
+
+            //                                            MapleHome.debugConsole.WriteToDebugConsole($"10th Api key failed using Last.");
+            //                                            var youtubeService = new YouTubeService(new BaseClientService.Initializer()
+            //                                            {
+            //                                                ApiKey = Properties.Settings.Default.YoutubeApiKey11,
+            //                                                ApplicationName = "Maple"
+            //                                            });
+            //                                            MapleHome.debugConsole.WriteToDebugConsole($"Youtube services created.");
+            //                                            //var searchListRequest = youtubeService.Search.List("snippet");
+
+            //                                            var searchListRequest = youtubeService.Search.List("snippet");
+            //                                            searchListRequest.Q = request;
+            //                                            searchListRequest.Type = "video";
+            //                                            searchListRequest.MaxResults = 1;
+
+
+            //                                            var searchListResponse = await searchListRequest.ExecuteAsync();
+
+            //                                            var videoId = searchListResponse.Items[0].Id.VideoId;
+
+            //                                            MapleHome.debugConsole.WriteToDebugConsole($"{videoId} Video Id.");
+            //                                            if (searchResults.Count > 0)
+            //                                            {
+            //                                                searchResults.Clear();
+            //                                            }
+            //                                            searchResults.Add(videoId);
+            //                                        }
+            //                                        catch (Exception ex)
+            //                                        {
+
+
+            //                                            MapleHome.debugConsole.WriteToDebugConsole($"All API failed. reason:  {ex.Message}");
+
+            //                                        }
+
+
+
+
+            //                                    }
+
+
+
+
+
+            //                                }
+
+
+
+
+
+            //                            }
+
+
+
+
+
+            //                        }
+
+
+
+
+
+            //                    }
+
+
+
+
+            //                }
+
+
+
+
+
+
+
+
+
+            //            }
+
+
+            //        }
+
+
+
+
+
+
+            //    }
+            //}
+
+            // helper.WriteToMapleConsole($"{searchResults[0]} Results Id.");
+            // helper.WriteToMapleConsole($"{searchResults.Count} Total Results Found.");
+
+        //}
 
         private void ClearSearchResults()
         {
